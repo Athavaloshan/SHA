@@ -1,5 +1,5 @@
 #Compiler flags
-CXX_FLAGS := -Wall -std=c++17
+CXX_FLAGS := -Wall -Wno-sign-compare -std=c++17
 
 # Project directory structure
 BIN := bin
@@ -27,10 +27,7 @@ SRCS = $(shell find $(SRC) ! -name Main.cpp -name "*.cpp")
 TEST_OBJS += $(subst $(SRC)/,$(BUILD)/,$(addsuffix .o,$(basename $(SRCS))))
 
 
-# Build and run 
-run: build
-	@echo "Executing Program ..."
-	./$(TARGET) $(n)
+# Build and run
 
 runtest: build_test
 	@echo "Executing Test ..."

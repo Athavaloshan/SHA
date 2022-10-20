@@ -132,7 +132,7 @@ void SHA256::process(uint8_t * charArray) // chararray is of length 64
         int currentCharArrayIndex = i * 4;
         w[i] = (charArray[currentCharArrayIndex] << 24) + (charArray[currentCharArrayIndex + 1] << 16) + 
                (charArray[currentCharArrayIndex + 2] << 8) + charArray[currentCharArrayIndex + 3];
-        cout << "W[" << i << "]" << w[i] << endl;
+        // cout << "W[" << i << "]" << w[i] << endl;
     }
 
     for (int i = 16; i < 64; ++i)
@@ -191,9 +191,9 @@ void SHA256::process(uint8_t * charArray) // chararray is of length 64
 
 string SHA256::calculateSHA256(string str)
 {
-    cout << "Input data " << convertStringToHex(str) << " length : " << str.length() << endl;
+    // cout << "Input data " << convertStringToHex(str) << " length : " << str.length() << endl;
     preProcess(str);
-    cout << "After pre processing data " << convertStringToHex(str) << " length : " << str.length() << endl;
+    // cout << "After pre processing data " << convertStringToHex(str) << " length : " << str.length() << endl;
     long currPos = 0;
     string currString;
     long numberOfBlocks = (str.length() * 8)/512; //multiply by 8 to convert the lenght to nymber of bits
@@ -202,10 +202,11 @@ string SHA256::calculateSHA256(string str)
     {
         uint8_t charArray[64];//can optimize by creating once & reuse it 
 
-        currString = str.substr(currPos, 512);
-        cout << "Current block : " << currString << " length : " << currString.length() << endl; 
+        currString = str.substr(currPos, 64);// 64 char = 512 bit
+        // cout << "Current block : " << currString << " length : " << currString.length() << endl; 
         convertBlockToCharArray(currString, charArray);
         process(charArray);
+        currPos += 64;
     }
 
     // Produce the final hash value (big-endian):
