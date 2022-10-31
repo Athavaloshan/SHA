@@ -1,4 +1,5 @@
 #include "SHA256.h"
+#include "Logging.h"
 
 SHA256::SHA256()
 {
@@ -16,11 +17,6 @@ SHA256::SHA256()
 uint32_t SHA256::rotateLeft(uint32_t data, int d)
 {
     return rotateLeft(data, (32 - d));//data is lenght of 32 bit 
-}
-
-void addNumberAndString(string str, uint8_t number)
-{
-    str += to_string(number);
 }
 
 uint32_t SHA256::rotateRight(uint32_t data, int d)
@@ -125,6 +121,7 @@ string SHA256::convertStringToHex(string & data)
 
 void SHA256::process(uint8_t * charArray) // chararray is of length 64
 {
+    ostringstream logInfo;
     uint32_t w[64];
 
     for (int i = 0; i < 16; ++i)
@@ -132,7 +129,7 @@ void SHA256::process(uint8_t * charArray) // chararray is of length 64
         int currentCharArrayIndex = i * 4;
         w[i] = (charArray[currentCharArrayIndex] << 24) + (charArray[currentCharArrayIndex + 1] << 16) + 
                (charArray[currentCharArrayIndex + 2] << 8) + charArray[currentCharArrayIndex + 3];
-        // cout << "W[" << i << "]" << w[i] << endl;
+        logInfo << "W[" << i << "]" << w[i] << endl;
     }
 
     for (int i = 16; i < 64; ++i)
@@ -181,29 +178,32 @@ void SHA256::process(uint8_t * charArray) // chararray is of length 64
     h6 = h6 + g;
     h7 = h7 + h;
 
-    // cout << hex << "h0 : " << h0 << endl;
-    // cout << "h1 : " << h1 << endl;
-    // cout << "h2 : " << h2 << endl;
-    // cout << "h3 : " << h3 << endl;
-    // cout << "h4 : " << h4 << dec <<endl;
+    logInfo << hex << "h0 : " << h0 << endl
+    << "h1 : " << h1 << endl
+    << "h2 : " << h2 << endl
+    << "h3 : " << h3 << endl
+    << "h4 : " << h4 << dec <<endl;
 
+    logMsg(logInfo);
 }
 
 string SHA256::calculateSHA256(string str)
 {
-    // cout << "Input data " << convertStringToHex(str) << " length : " << str.length() << endl;
+    ostringstream logInfo;
+    logInfo << "Input data " << convertStringToHex(str) << " length : " << str.length() << endl;
     preProcess(str);
-    // cout << "After pre processing data " << convertStringToHex(str) << " length : " << str.length() << endl;
+    logInfo << "After pre processing data " << convertStringToHex(str) << " length : " << str.length() << endl;
     long currPos = 0;
     string currString;
-    long numberOfBlocks = (str.length() * 8)/512; //multiply by 8 to convert the lenght to nymber of bits
+    long numberOfBlocks = (str.length() * 8)/512; //multiply by 8 to convert the length to number of bits
+
+    uint8_t charArray[64]; 
 
     for(int i = 0; i < numberOfBlocks; ++i)
     {
-        uint8_t charArray[64];//can optimize by creating once & reuse it 
-
+        memset(charArray, 0, sizeof(uint8_t) * 64);
         currString = str.substr(currPos, 64);// 64 char = 512 bit
-        // cout << "Current block : " << currString << " length : " << currString.length() << endl; 
+        logInfo << "Current block : " << currString << " length : " << currString.length() << endl; 
         convertBlockToCharArray(currString, charArray);
         process(charArray);
         currPos += 64;
@@ -214,6 +214,7 @@ string SHA256::calculateSHA256(string str)
     + convertToString(h3) + convertToString(h4) + convertToString(h5) 
     + convertToString(h6) + convertToString(h7);
 
+    logMsg(logInfo);
     return digest;
 }
 
